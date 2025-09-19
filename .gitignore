@@ -10,3 +10,6 @@ dist
 .vercel
 .turbo
 *.tsbuildinfo
+
+# Development test files
+test-logging-api.js
