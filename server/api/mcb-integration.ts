@@ -54,20 +54,64 @@ export default defineEventHandler(async (event) => {
     let tasksCreated = []
     if (autoCreateTasks && taskadeKey && taskadeWorkspaceId) {
       try {
-        // Try to parse tasks from AI response
-        const taskMatches = aiResponse.match(/\{[^}]*"title"[^}]*\}/g)
-        if (taskMatches) {
+        // Try to parse tasks from AI response with improved parsing
+        // Look for JSON array or individual JSON objects
+        let tasks: Array<{ title?: string; description?: string; content?: string }> = []
+        
+        // Try to find and parse a JSON array first
+        const arrayMatch = aiResponse.match(/\[[\s\S]*?\]/)?.[0]
+        if (arrayMatch) {
+          try {
+            const parsedArray = JSON.parse(arrayMatch)
+            if (Array.isArray(parsedArray)) {
+              tasks = parsedArray
+            }
+          } catch (err) {
+            console.error('Failed to parse JSON array:', err)
+          }
+        }
+        
+        // If no array found, try individual JSON objects with better regex
+        if (tasks.length === 0) {
+          const jsonPattern = /\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\}/g
+          const taskMatches = aiResponse.match(jsonPattern)
+          if (taskMatches) {
+            for (const taskStr of taskMatches) {
+              try {
+                const parsed = JSON.parse(taskStr)
+                if (parsed && (parsed.title || parsed.content)) {
+                  tasks.push(parsed)
+                }
+              } catch (err) {
+                // Skip invalid JSON
+              }
+            }
+          }
+        }
+
+        // Create tasks in Taskade with validation
+        if (tasks.length > 0) {
           const headers = {
             'Authorization': `Bearer ${taskadeKey}`,
             'Content-Type': 'application/json',
           }
 
-          for (const taskStr of taskMatches) {
+          for (const task of tasks) {
             try {
-              const task = JSON.parse(taskStr)
+              // Extract task content with fallbacks and validation
+              const taskContent = task.title || task.content
+              if (!taskContent || typeof taskContent !== 'string') {
+                continue // Skip tasks without valid content
+              }
+              
+              const taskNotes = task.description || undefined
+              
               const response = await axios.post(
                 `${TASKADE_API_BASE}/workspaces/${taskadeWorkspaceId}/tasks`,
-                { content: task.title, notes: task.description },
+                { 
+                  content: taskContent,
+                  notes: taskNotes 
+                },
                 { headers }
               )
               tasksCreated.push(response.data)
