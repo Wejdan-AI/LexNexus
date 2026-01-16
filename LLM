@@ -1,0 +1,206 @@
+import os
+import time
+import uuid
+import json
+import re
+import asyncio
+from typing import Optional, Dict, Any, List, Union
+from pathlib import Path
+
+from fastapi import FastAPI, Header, HTTPException, Request
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel, Field
+import httpx
+
+# --- Configuration & Storage ---
+DATA_DIR = Path("./data")
+DATA_DIR.mkdir(parents=True, exist_ok=True)
+
+class Storage:
+    @staticmethod
+    def _file(name: str) -> Path: return DATA_DIR / f"{name}.json"
+    
+    @staticmethod
+    def read(name: str, default: Any) -> Any:
+        path = Storage._file(name)
+        if not path.exists(): return default
+        return json.loads(path.read_text(encoding="utf-8"))
+    
+    @staticmethod
+    def write(name: str, obj: Any):
+        Storage._file(name).write_text(json.dumps(obj, ensure_ascii=False, indent=2), encoding="utf-8")
+
+# --- Models ---
+class Connection(BaseModel):
+    provider: str
+    enabled: bool = True
+    api_key: str = ""
+    endpoint: Optional[str] = None
+    default_model: str = "default"
+
+class WorkflowStep(BaseModel):
+    name: str
+    provider_hint: Optional[str] = None
+    params: Dict[str, Any] = Field(default_factory=dict)
+
+class Workflow(BaseModel):
+    id: str
+    name: str
+    description: Optional[str] = None
+    steps: List[WorkflowStep]
+
+class RunRequest(BaseModel):
+    workflow_id: str
+    task: str
+    query: str
+    context: Dict[str, Any] = Field(default_factory=dict)
+    preference: str = "quality" # quality | speed | cost
+
+# --- Unified Provider Wrapper ---
+class ProviderResponse(BaseModel):
+    answer: str
+    provider: str
+    model: str
+    latency_ms: int
+    raw: Optional[Dict[str, Any]] = None
+
+class LLMOrchestrator:
+    def __init__(self):
+        self.api_key = "" # Placeholder for Gemini API internal use
+
+    async def call_with_retry(self, func, *args, **kwargs):
+        retries = 5
+        for i in range(retries):
+            try:
+                return await func(*args, **kwargs)
+            except Exception as e:
+                if i == retries - 1: raise e
+                await asyncio.sleep(2**i)
+        return None
+
+    async def generate_gemini(self, query: str, api_key: str, model: str, timeout: int) -> ProviderResponse:
+        start = time.time()
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}"
+        payload = {
+            "contents": [{"parts": [{"text": query}]}]
+        }
+        
+        async def _call():
+            async with httpx.AsyncClient(timeout=timeout) as client:
+                resp = await client.post(url, json=payload)
+                resp.raise_for_status()
+                return resp.json()
+
+        data = await self.call_with_retry(_call)
+        text = data.get("candidates", [{}])[0].get("content", {}).get("parts", [{}])[0].get("text", "Error: No Response")
+        
+        return ProviderResponse(
+            answer=text,
+            provider="gemini",
+            model=model,
+            latency_ms=int((time.time() - start) * 1000),
+            raw=data
+        )
+
+    async def generate_openai_compatible(self, query: str, api_key: str, endpoint: str, model: str, provider_name: str, timeout: int) -> ProviderResponse:
+        start = time.time()
+        headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
+        payload = {
+            "model": model,
+            "messages": [{"role": "user", "content": query}]
+        }
+        
+        async def _call():
+            async with httpx.AsyncClient(timeout=timeout) as client:
+                resp = await client.post(endpoint, json=payload, headers=headers)
+                resp.raise_for_status()
+                return resp.json()
+
+        data = await self.call_with_retry(_call)
+        text = data.get("choices", [{}])[0].get("message", {}).get("content", "Error")
+        
+        return ProviderResponse(
+            answer=text,
+            provider=provider_name,
+            model=model,
+            latency_ms=int((time.time() - start) * 1000),
+            raw=data
+        )
+
+# --- FastAPI App ---
+app = FastAPI()
+app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
+orchestrator = LLMOrchestrator()
+
+@app.get("/api/config")
+def get_config():
+    return {
+        "connections": Storage.read("connections", {}),
+        "workflows": Storage.read("workflows", {}),
+        "settings": Storage.read("settings", {"pii_masking": True})
+    }
+
+@app.post("/api/connections")
+def save_connections(data: Dict[str, Connection]):
+    Storage.write("connections", {k: v.dict() for k, v in data.items()})
+    return {"status": "saved"}
+
+@app.post("/api/workflows")
+def save_workflows(data: Dict[str, Workflow]):
+    Storage.write("workflows", {k: v.dict() for k, v in data.items()})
+    return {"status": "saved"}
+
+@app.post("/api/run")
+async def run_task(req: RunRequest):
+    conns = Storage.read("connections", {})
+    settings = Storage.read("settings", {"pii_masking": True})
+    
+    # 1. PII Masking
+    query = req.query
+    if settings.get("pii_masking"):
+        query = re.sub(r"\b\d{10,}\b", "[HIDDEN_ID]", query)
+        query = re.sub(r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b", "[HIDDEN_EMAIL]", query)
+
+    # 2. Routing Logic (Simplified)
+    # Priority: OpenAI -> Anthropic -> Gemini (based on availability)
+    route = ["openai", "anthropic", "gemini"]
+    if req.preference == "speed": route = ["gemini", "openai", "anthropic"]
+
+    errors = []
+    for provider_id in route:
+        conn_data = conns.get(provider_id)
+        if not conn_data or not conn_data.get("enabled"): continue
+        
+        try:
+            p_name = conn_data['provider']
+            key = conn_data['api_key']
+            model = conn_data['default_model']
+            
+            if provider_id == "gemini":
+                res = await orchestrator.generate_gemini(query, key, model or "gemini-1.5-flash", 30)
+            else:
+                endpoint = conn_data.get("endpoint") or "https://api.openai.com/v1/chat/completions"
+                res = await orchestrator.generate_openai_compatible(query, key, endpoint, model, p_name, 30)
+            
+            # Log successful run
+            logs = Storage.read("logs", [])
+            logs.append({
+                "ts": time.time(),
+                "workflow": req.workflow_id,
+                "provider": res.provider,
+                "latency": res.latency_ms,
+                "query_len": len(query)
+            })
+            Storage.write("logs", logs[-100:]) # Keep last 100
+            
+            return res
+        except Exception as e:
+            errors.append({"provider": provider_id, "error": str(e)})
+            continue
+
+    raise HTTPException(status_code=502, detail={"msg": "All providers failed", "errors": errors})
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)
+
