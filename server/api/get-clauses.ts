@@ -6,7 +6,7 @@ async function seed() {
   const createTable = await sql`
     CREATE TABLE IF NOT EXISTS clauses (
       id SERIAL PRIMARY KEY,
-      title VARCHAR(255) NOT NULL,
+      title VARCHAR(255) NOT NULL UNIQUE,
       content TEXT NOT NULL,
       category VARCHAR(100),
       "createdAt" TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
@@ -19,17 +19,17 @@ async function seed() {
     sql`
           INSERT INTO clauses (title, content, category)
           VALUES ('Confidentiality Clause', 'The parties agree to maintain confidentiality of all proprietary information shared during the term of this agreement.', 'Contract Law')
-          ON CONFLICT DO NOTHING;
+          ON CONFLICT (title) DO NOTHING;
       `,
     sql`
           INSERT INTO clauses (title, content, category)
           VALUES ('Liability Limitation', 'Neither party shall be liable for any indirect, incidental, or consequential damages arising from this agreement.', 'Contract Law')
-          ON CONFLICT DO NOTHING;
+          ON CONFLICT (title) DO NOTHING;
       `,
     sql`
           INSERT INTO clauses (title, content, category)
           VALUES ('Termination Notice', 'Either party may terminate this agreement with 30 days written notice to the other party.', 'Employment Law')
-          ON CONFLICT DO NOTHING;
+          ON CONFLICT (title) DO NOTHING;
       `,
   ])
   console.log(`Seeded ${clauses.length} clauses`)

@@ -49,11 +49,9 @@ export default {
     },
   },
   methods: {
-    timeAgo(timestamp, timeOnly) {
+    timeAgo(timestamp) {
       if (!timestamp) return 'never'
-      return `${ms(Date.now() - new Date(timestamp).getTime())}${
-        timeOnly ? '' : ' ago'
-      }`
+      return `${ms(Date.now() - new Date(timestamp).getTime())} ago`
     },
     refreshPage() {
       location.reload()
