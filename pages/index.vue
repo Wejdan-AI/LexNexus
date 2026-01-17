@@ -11,13 +11,21 @@
     <h1
       class="pt-4 pb-8 bg-gradient-to-br dark:from-white from-black via-[#707070] to-[#ffffff] bg-clip-text text-center text-4xl font-medium tracking-tight text-transparent md:text-7xl"
     >
-      Postgres on Vercel
+      LexNexus Platform
     </h1>
+    <div class="flex gap-4 mb-6">
+      <a
+        href="/clauses"
+        class="px-6 py-3 text-sm font-medium text-white bg-blue-600 transition-all rounded-lg shadow-lg hover:bg-blue-700 active:shadow-sm"
+      >
+        View Legal Clauses
+      </a>
+    </div>
     <Table :users="data?.users" :duration="data?.duration" />
     <div
       class="w-full max-w-lg mt-6 font-light text-center text-gray-600 dark:text-gray-300"
     >
-      Simple hello world demo of Postgres
+      LexNexus - Legal Platform with Postgres Database
       <div class="flex items-center justify-center my-2">
         <span>Built with</span>
         <a
