@@ -49,3 +49,21 @@ pnpm preview
 ```
 
 Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
+
+## Notion Chat Importer
+
+Use the Python script in `scripts/notion_importer.py` to import chat conversations from a JSON file into a Notion database.
+
+1. Create a `chats.json` file (or copy `scripts/chats.example.json`) with your conversations.
+2. Export your Notion credentials:
+
+```bash
+export NOTION_TOKEN="secret_xxxxxxxxxx"
+export DATABASE_ID="abc123def456"
+```
+
+3. Run the importer:
+
+```bash
+python scripts/notion_importer.py
+```
