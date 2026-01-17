@@ -5,30 +5,25 @@ on:
     branches: [ main ]
     paths:
       - "**/*.json"
-      - "notion_importer.py"
       - "codex.py"
+      - "notion_importer.py"
       - "requirements.txt"
-      - ".github/workflows/notion-sync.yml"
   schedule:
     - cron: "0 2 * * *"
   workflow_dispatch:
     inputs:
       update_existing:
-        description: "Update existing Notion pages matched by External ID"
-        required: false
         default: "true"
+      dry_run:
+        default: "false"
       file_pattern:
-        description: "JSON filename pattern to scan"
-        required: false
         default: "chats.json"
       repo_dir:
-        description: "Repository directory to scan"
-        required: false
         default: "."
-      dry_run:
-        description: "Dry run (no writes to Notion)"
-        required: false
-        default: "false"
+
+concurrency:
+  group: codex-notion-sync
+  cancel-in-progress: true
 
 permissions:
   contents: read
@@ -38,21 +33,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-
-      - name: Install dependencies
-        run: |
+      - run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-
-      - name: Run Codex Sync (Upsert All Properties)
+      - name: Run Codex
         env:
           NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
           DATABASE_ID: ${{ secrets.DATABASE_ID }}
-          NOTION_VERSION: "2022-06-28"
         run: |
           REPO_DIR="${{ github.event.inputs.repo_dir }}"
           FILE_PATTERN="${{ github.event.inputs.file_pattern }}"
@@ -65,14 +55,8 @@ jobs:
           if [ -z "$DRY_RUN" ]; then DRY_RUN="false"; fi
 
           CMD="python codex.py sync --repo-dir \"$REPO_DIR\" --file-pattern \"$FILE_PATTERN\""
-
-          if [ "$UPDATE_EXISTING" = "true" ]; then
-            CMD="$CMD --update-existing"
-          fi
-
-          if [ "$DRY_RUN" = "true" ]; then
-            CMD="$CMD --dry-run"
-          fi
+          if [ "$UPDATE_EXISTING" = "true" ]; then CMD="$CMD --update-existing"; fi
+          if [ "$DRY_RUN" = "true" ]; then CMD="$CMD --dry-run"; fi
 
           echo "Running: $CMD"
           eval $CMD
