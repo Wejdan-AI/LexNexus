@@ -84,12 +84,13 @@ The file will contain both IDs in JSON format:
 
 The project uses the following Vercel configuration (see `vercel.json`):
 
-- Build command: `pnpm turbo build` (which executes the `build` script from package.json)
+- Build command: `pnpm turbo build`
 - Ignore command: `pnpm dlx turbo-ignore`
 
 When Vercel builds the project:
 1. It runs `pnpm turbo build` (from vercel.json)
-2. Turbo executes `pnpm build` (from package.json)
-3. This runs `nuxt build` to compile the Nuxt application
+2. Turbo looks at `turbo.json` and executes the `build` pipeline task
+3. The pipeline runs `pnpm build` (from package.json)
+4. This executes `nuxt build` to compile the Nuxt application
 
-This ensures efficient builds using Turborepo's caching system.
+This ensures efficient builds using Turborepo's caching and pipeline system.
