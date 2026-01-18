@@ -48,4 +48,26 @@ Locally preview production build:
 pnpm preview
 ```
 
+## Vercel Deployment Automation
+
+This repository includes examples for automating deployments using the Vercel SDK.
+
+### Quick Start
+
+1. Set your Vercel API token:
+   ```bash
+   export VERCEL_TOKEN=your_vercel_token_here
+   ```
+
+2. Run an example:
+   ```bash
+   pnpm run example:create-deployment
+   # or
+   pnpm run example:deployment-with-alias
+   ```
+
+For more information, see:
+- [Deployment Automation Documentation](docs/deployment-automation.md)
+- [Examples Directory](examples/)
+
 Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
