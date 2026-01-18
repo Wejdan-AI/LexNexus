@@ -16,8 +16,6 @@ relatedTemplates:
 
 # Nuxt 3 Minimal Starter
 
-> ملاحظة: تمت إزالة ملف `LordAI` لأنه كان ملاحظات تمهيدية فقط. يمكنك تغيير اسم المشروع (مثلًا من Wejdan-AI إلى أي اسم آخر) بتعديل حقل `name` داخل `package.json`.
-
 Look at the [Nuxt 3 documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
 
 ## Setup
@@ -49,5 +47,9 @@ Locally preview production build:
 ```bash
 pnpm preview
 ```
+
+## Project naming
+
+هذا المستودع مبني على قالب Nuxt 3 مع Postgres لتطبيق LexNexus. تمت إزالة ملف `LordAI` لأنه كان مجرد ملاحظات تمهيدية. إذا أردت تغيير اسم المشروع (مثلًا من Wejdan-AI إلى أي اسم آخر)، حدّث حقل `name` في `package.json` وأعد تشغيل الأدوات.
 
 Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
