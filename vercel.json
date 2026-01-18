@@ -1,4 +1,11 @@
 {
-  "buildCommand": "pnpm turbo build",
-  "ignoreCommand": "pnpm dlx turbo-ignore"
+  "buildCommand": "pnpm build",
+  "devCommand": "pnpm dev",
+  "installCommand": "pnpm install",
+  "framework": "nuxtjs",
+  "build": {
+    "env": {
+      "NODE_VERSION": "20"
+    }
+  }
 }
