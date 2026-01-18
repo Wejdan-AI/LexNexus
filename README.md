@@ -16,6 +16,8 @@ relatedTemplates:
 
 # Nuxt 3 Minimal Starter
 
+> ملاحظة: تمت إزالة ملف `LordAI` لأنه كان ملاحظات تمهيدية فقط. يمكنك تغيير اسم المشروع (مثلًا من Wejdan-AI إلى أي اسم آخر) بتعديل حقل `name` داخل `package.json`.
+
 Look at the [Nuxt 3 documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
 
 ## Setup
