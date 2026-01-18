@@ -1,13 +1,11 @@
 ---
-name: Postgres + Nuxt Starter
-slug: postgres-nuxt
-description: Simple Nuxt template that uses a Postgres database.
+name: LexNexus
+slug: lexnexus
+description: Nuxt + Postgres starter configured for LexNexus.
 framework: Nuxt
 useCase: Starter
 css: Tailwind
 database: Postgres
-deployUrl: https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fvercel%2Fexamples%2Ftree%2Fmain%2Fstorage%2Fpostgres-nuxt&project-name=postgres-nuxt&repository-name=postgres-nuxt&demo-title=Vercel%20Postgres%20%2B%20Nuxt%20Starter&demo-description=Simple%20Nuxt%20template%20that%20uses%20Vercel%20Postgres%20as%20the%20database&demo-url=https%3A%2F%2Fpostgres-nuxt.vercel.app%2F&demo-image=https%3A%2F%2Fpostgres-nuxt.vercel.app%2Fopengraph-image.png&products=%5B%7B%22type%22%3A%22integration%22%2C%22group%22%3A%22postgres%22%7D%5D
-demoUrl: https://postgres-nuxt.vercel.app/
 relatedTemplates:
   - postgres-starter
   - postgres-prisma
@@ -47,5 +45,9 @@ Locally preview production build:
 ```bash
 pnpm preview
 ```
+
+## Project naming
+
+هذا المستودع مبني على قالب Nuxt 3 مع Postgres لتطبيق LexNexus. تمت إزالة ملف `LordAI` لأنه كان مجرد ملاحظات تمهيدية. إذا أردت تغيير اسم المشروع (مثلًا من Wejdan-AI إلى أي اسم آخر)، حدّث حقل `name` في `package.json` وأعد تشغيل الأدوات.
 
 Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
