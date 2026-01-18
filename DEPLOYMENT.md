@@ -16,7 +16,7 @@ To enable automated deployments, you need to add the following secrets to your G
 
 1. **VERCEL_TOKEN**: Your Vercel API token
    - Get this from: https://vercel.com/account/tokens
-   - The token format looks like: `iZJb2oftmY4ab12HBzyBXMkp`
+   - The token format looks like: `ver_xxxxxxxxxxxxxxxxxxxxxxxx`
 
 2. **VERCEL_ORG_ID**: Your Vercel organization ID
    - Find this in your Vercel project settings under "Project Settings" → "General"
