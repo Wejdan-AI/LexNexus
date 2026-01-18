@@ -6,8 +6,6 @@ framework: Nuxt
 useCase: Starter
 css: Tailwind
 database: Postgres
-deployUrl: https://vercel.com/new/clone?repository-url=https://github.com/Wejdan-AI/LexNexus
-demoUrl: https://github.com/Wejdan-AI/LexNexus
 relatedTemplates:
   - postgres-starter
   - postgres-prisma
