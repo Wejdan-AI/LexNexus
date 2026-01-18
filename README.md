@@ -49,3 +49,10 @@ pnpm preview
 ```
 
 Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
+
+## Documentation & Examples
+
+This repository includes additional documentation and examples:
+
+- **[Domain Management](docs/domain-management.md)** - Learn how to manage domains using the Vercel SDK
+- **[Examples](examples/)** - Executable TypeScript examples demonstrating various features
