@@ -1,0 +1,13 @@
+automerge:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "**/*.json"
+          - "notion_importer.py"
+          - "codex.py"
+          - "requirements.txt"
+          - ".github/workflows/**"
+
+do-not-merge:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "**/*.md"

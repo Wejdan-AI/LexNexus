@@ -1,51 +1,167 @@
 ---
-name: Postgres + Nuxt Starter
-slug: postgres-nuxt
-description: Simple Nuxt template that uses a Postgres database.
+name: WejdanAI
+slug: wejdanai
+description: A comprehensive AI application with Nuxt.js frontend, Postgres database, AI logging API, and Notion integration.
 framework: Nuxt
-useCase: Starter
+useCase: AI Application
 css: Tailwind
 database: Postgres
-deployUrl: https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fvercel%2Fexamples%2Ftree%2Fmain%2Fstorage%2Fpostgres-nuxt&project-name=postgres-nuxt&repository-name=postgres-nuxt&demo-title=Vercel%20Postgres%20%2B%20Nuxt%20Starter&demo-description=Simple%20Nuxt%20template%20that%20uses%20Vercel%20Postgres%20as%20the%20database&demo-url=https%3A%2F%2Fpostgres-nuxt.vercel.app%2F&demo-image=https%3A%2F%2Fpostgres-nuxt.vercel.app%2Fopengraph-image.png&products=%5B%7B%22type%22%3A%22integration%22%2C%22group%22%3A%22postgres%22%7D%5D
-demoUrl: https://postgres-nuxt.vercel.app/
+deployUrl: https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FMOTEB1989%2FWejdanAI&project-name=wejdanai&repository-name=wejdanai
+demoUrl: https://wejdanai.vercel.app
 relatedTemplates:
   - postgres-starter
   - postgres-prisma
   - postgres-sveltekit
 ---
 
-# Nuxt 3 Minimal Starter
+# WejdanAI
 
-Look at the [Nuxt 3 documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
+A comprehensive AI application built with Nuxt.js, featuring a Postgres database, AI chat logging, and Notion integration for codex synchronization.
 
-## Setup
+## Features
 
-Make sure to install the dependencies:
+- **Frontend**: Nuxt 3 application with Tailwind CSS for a modern UI
+- **Database**: Postgres for robust data storage and management
+- **AI Logging**: REST API endpoint for logging AI queries and responses
+- **Notion Integration**: Sync AI chats and codex data to Notion database
+- **Automated Sync**: GitHub Actions workflow for daily Notion synchronization
+- **Deployment Ready**: Configured for Vercel deployment with environment handling
 
-```bash
-pnpm install
-```
+## Prerequisites
 
-## Development Server
+- Node.js (v18 or higher)
+- pnpm
+- Python 3.8+
+- Postgres database
+- Notion account with integration token
 
-Start the development server on `http://localhost:3000`
+## Installation
 
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/MOTEB1989/WejdanAI.git
+   cd WejdanAI
+   ```
+
+2. Install Node.js dependencies:
+   ```bash
+   pnpm install
+   ```
+
+3. Install Python dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+## Environment Setup
+
+### Database
+Configure your Postgres database connection in `nuxt.config.ts` or environment variables.
+
+### Notion Integration
+1. Create a new integration in Notion: https://www.notion.so/my-integrations
+2. Get your `NOTION_TOKEN` and `DATABASE_ID`
+3. Set environment variables:
+   ```bash
+   export NOTION_TOKEN="your_notion_token"
+   export DATABASE_ID="your_database_id"
+   ```
+
+## Development
+
+Start the development server:
 ```bash
 pnpm dev
 ```
+The app will be available at `http://localhost:3000`
 
-## Production
-
-Build the application for production:
+## Building for Production
 
 ```bash
 pnpm build
-```
-
-Locally preview production build:
-
-```bash
 pnpm preview
 ```
 
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
+## Notion Database Setup
+
+For Codex sync, create a Notion database with these properties:
+- **Page Title** (Title)
+- **AI Tool** (Select)
+- **Category** (Select)
+- **Status** (Status)
+- **Conversation Content** (Rich text)
+- **External ID** (Rich text)
+
+## Python Scripts
+
+### Notion Chat Importer
+Import chat conversations from JSON to Notion:
+```bash
+python notion_importer.py
+```
+
+### Codex Sync
+Synchronize codex data with Notion:
+```bash
+python codex.py sync --update-existing  # Update existing pages
+python codex.py sync --dry-run          # Preview changes
+```
+
+## API Documentation
+
+The logging API is documented in [LOGGING_API.md](LOGGING_API.md).
+
+Base URL: `https://wejdanai.vercel.app/api/logs`
+
+### POST /api/logs
+Log a new AI interaction:
+```json
+{
+  "user_id": 1,
+  "query": "User's question",
+  "response": "AI's response"
+}
+```
+
+### GET /api/logs
+Retrieve all logged interactions.
+
+## GitHub Actions
+
+The repository includes automated workflows in `.github/workflows/` for:
+- Notion synchronization on pushes to JSON files
+- Daily scheduled sync
+- Manual dispatch option
+
+## Deployment
+
+Deploy to Vercel:
+1. Connect your GitHub repo to Vercel
+2. Set environment variables in Vercel dashboard
+3. Deploy
+
+## Project Structure
+
+- `app.vue` - Main Nuxt app entry
+- `pages/` - Nuxt pages
+- `components/` - Reusable Vue components
+- `server/` - Server-side API routes
+- `assets/` - Static assets
+- `public/` - Public files
+- `scripts/` - Additional scripts
+- `codex.py` - Codex synchronization script
+- `notion_importer.py` - Notion importer script
+- `LLM` & `LordAI` - AI-related executables/scripts
+- `README_CODEX.md` - Additional codex documentation
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Test thoroughly
+5. Submit a pull request
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
