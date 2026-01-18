@@ -1,0 +1,27 @@
+# WejdanAI RAG System Requirements
+# ==================================
+
+# Core HTTP client
+httpx>=0.25.0
+
+# API Framework
+fastapi>=0.104.0
+uvicorn[standard]>=0.24.0
+
+# Data validation
+pydantic>=2.5.0
+
+# Async support
+anyio>=4.0.0
+
+# Optional: Vector embeddings (for production)
+# openai>=1.0.0  # For embeddings
+# numpy>=1.24.0  # For vector operations
+
+# Optional: Better Notion integration
+# notion-client>=2.0.0
+
+# Development
+pytest>=7.4.0
+pytest-asyncio>=0.21.0
+ruff>=0.1.0

@@ -1,0 +1,42 @@
+name: PR Comment (CI Summary)
+
+on:
+  workflow_run:
+    workflows: ["CI"]
+    types: [completed]
+
+permissions:
+  pull-requests: write
+  contents: read
+
+jobs:
+  comment:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.event == 'pull_request' }}
+    steps:
+      - name: Comment on PR with CI result
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const run = context.payload.workflow_run;
+            const conclusion = run.conclusion || "unknown";
+
+            // Find PR number from workflow_run payload
+            const prs = run.pull_requests || [];
+            if (prs.length === 0) {
+              core.info("No PR found in workflow_run payload.");
+              return;
+            }
+            const prNumber = prs[0].number;
+
+            const body =
+              `### CI Result\n` +
+              `- Status: **${conclusion}**\n` +
+              `- Run: ${run.html_url}\n`;
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: prNumber,
+              body
+            });

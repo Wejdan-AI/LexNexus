@@ -1,0 +1,62 @@
+name: Notion Sync (Codex)
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - "**/*.json"
+      - "codex.py"
+      - "notion_importer.py"
+      - "requirements.txt"
+  schedule:
+    - cron: "0 2 * * *"
+  workflow_dispatch:
+    inputs:
+      update_existing:
+        default: "true"
+      dry_run:
+        default: "false"
+      file_pattern:
+        default: "chats.json"
+      repo_dir:
+        default: "."
+
+concurrency:
+  group: codex-notion-sync
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      - name: Run Codex
+        env:
+          NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
+          DATABASE_ID: ${{ secrets.DATABASE_ID }}
+        run: |
+          REPO_DIR="${{ github.event.inputs.repo_dir }}"
+          FILE_PATTERN="${{ github.event.inputs.file_pattern }}"
+          UPDATE_EXISTING="${{ github.event.inputs.update_existing }}"
+          DRY_RUN="${{ github.event.inputs.dry_run }}"
+
+          if [ -z "$REPO_DIR" ]; then REPO_DIR="."; fi
+          if [ -z "$FILE_PATTERN" ]; then FILE_PATTERN="chats.json"; fi
+          if [ -z "$UPDATE_EXISTING" ]; then UPDATE_EXISTING="true"; fi
+          if [ -z "$DRY_RUN" ]; then DRY_RUN="false"; fi
+
+          CMD="python codex.py sync --repo-dir \"$REPO_DIR\" --file-pattern \"$FILE_PATTERN\""
+          if [ "$UPDATE_EXISTING" = "true" ]; then CMD="$CMD --update-existing"; fi
+          if [ "$DRY_RUN" = "true" ]; then CMD="$CMD --dry-run"; fi
+
+          echo "Running: $CMD"
+          eval $CMD
