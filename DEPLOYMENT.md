@@ -19,12 +19,14 @@ To enable automated deployments, you need to add the following secrets to your G
    - The token format looks like: `iZJb2oftmY4ab12HBzyBXMkp`
 
 2. **VERCEL_ORG_ID**: Your Vercel organization ID
-   - Find this in your Vercel project settings
+   - Find this in your Vercel project settings under "Project Settings" → "General"
    - Or run: `vercel project ls` after linking your project
+   - You can also get it by running `vercel link` and checking `.vercel/project.json`
 
 3. **VERCEL_PROJECT_ID**: Your Vercel project ID
-   - Find this in your Vercel project settings
+   - Find this in your Vercel project settings under "Project Settings" → "General"
    - Or run: `vercel project ls` after linking your project
+   - You can also get it by running `vercel link` and checking `.vercel/project.json`
 
 ### Adding Secrets to GitHub
 
@@ -48,11 +50,34 @@ You can also deploy manually using the Vercel CLI:
 # Install Vercel CLI
 pnpm install -g vercel
 
+# Link your project (first time only)
+vercel link --token YOUR_VERCEL_TOKEN
+
 # Deploy to preview
 vercel --token YOUR_VERCEL_TOKEN
 
 # Deploy to production
 vercel --prod --token YOUR_VERCEL_TOKEN
+```
+
+### Getting Your Project IDs
+
+To get your `VERCEL_ORG_ID` and `VERCEL_PROJECT_ID`:
+
+```bash
+# Link your project first
+vercel link --token YOUR_VERCEL_TOKEN
+
+# Check the generated .vercel/project.json file
+cat .vercel/project.json
+```
+
+The file will contain both IDs in JSON format:
+```json
+{
+  "orgId": "your-org-id",
+  "projectId": "your-project-id"
+}
 ```
 
 ### Project Configuration
