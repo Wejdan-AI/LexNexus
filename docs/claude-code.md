@@ -55,7 +55,7 @@ This allows you to use any model available through the AI Gateway while still us
 
 ### 4. (Optional) macOS: Secure token storage with Keychain
 
-If you're on a Mac and would like to manage your API key through a keychain for improved security, set your API key in the keystore with:
+If you're on a Mac and would like to manage your API key through a keychain for improved security, set your API key in the keychain with:
 
 ```bash
 security add-generic-password -a "$USER" -s "ANTHROPIC_AUTH_TOKEN" \
