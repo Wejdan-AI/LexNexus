@@ -15,13 +15,13 @@ AI Gateway provides [Anthropic-compatible API endpoints](/docs/ai-gateway/anthro
     
     First, log out if you're already logged in:
     
-    ```
+    ```bash
     claude /logout
     ```
     
     Next, ensure you have your AI Gateway API key handy, and configure Claude Code to use the AI Gateway by adding this to your shell configuration file, for example in `~/.zshrc` or `~/.bashrc`:
     
-    ```
+    ```bash
     export ANTHROPIC_BASE_URL="https://ai-gateway.vercel.sh"
     export ANTHROPIC_AUTH_TOKEN="your-ai-gateway-api-key"
     export ANTHROPIC_API_KEY=""
@@ -33,7 +33,7 @@ AI Gateway provides [Anthropic-compatible API endpoints](/docs/ai-gateway/anthro
     
     Run `claude` to start Claude Code with AI Gateway:
     
-    ```
+    ```bash
     claude
     ```
     
@@ -43,7 +43,7 @@ AI Gateway provides [Anthropic-compatible API endpoints](/docs/ai-gateway/anthro
     
     You can override the default models that Claude Code uses by setting additional environment variables:
     
-    ```
+    ```bash
     export ANTHROPIC_DEFAULT_SONNET_MODEL="kwaipilot/kat-coder-pro-v1"
     export ANTHROPIC_DEFAULT_OPUS_MODEL="zai/glm-4.7"
     export ANTHROPIC_DEFAULT_HAIKU_MODEL="minimax/minimax-m2.1"
@@ -53,18 +53,18 @@ AI Gateway provides [Anthropic-compatible API endpoints](/docs/ai-gateway/anthro
     
     Models vary widely in their support for tools, extended thinking, and other features that Claude Code relies on. Performance may differ significantly depending on the model and provider you select.
     
-4.  ### [(Optional) macOS: Secure token storage with Keychain](#optional-macos:-secure-token-storage-with-keychain)
+4.  ### [(Optional) macOS: Secure token storage with Keychain](#optional-macos-secure-token-storage-with-keychain)
     
     If you're on a Mac and would like to manage your API key through a keychain for improved security, set your API key in the keystore with:
     
-    ```
+    ```bash
     security add-generic-password -a "$USER" -s "ANTHROPIC_AUTH_TOKEN" \
       -w "your-ai-gateway-api-key"
     ```
     
     and edit the `ANTHROPIC_AUTH_TOKEN` line above to:
     
-    ```
+    ```bash
     export ANTHROPIC_AUTH_TOKEN=$(
       security find-generic-password -a "$USER" -s "ANTHROPIC_AUTH_TOKEN" -w
     )
@@ -72,7 +72,7 @@ AI Gateway provides [Anthropic-compatible API endpoints](/docs/ai-gateway/anthro
     
     If you need to update the API key value later, you can do it with:
     
-    ```
+    ```bash
     security add-generic-password -U -a "$USER" -s "ANTHROPIC_AUTH_TOKEN" \
       -w "new-ai-gateway-api-key"
     ```
