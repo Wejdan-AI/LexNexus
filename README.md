@@ -42,8 +42,6 @@ Then update the `.env` file with your actual credentials:
 
 **Important**: Never commit your `.env` file to version control. It contains sensitive credentials.
 
-**Important**: Never commit your `.env` file to version control. It contains sensitive credentials.
-
 ## Development Server
 
 Start the development server on `http://localhost:3000`
