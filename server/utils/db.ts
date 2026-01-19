@@ -31,10 +31,14 @@ export function getDatabase() {
     
     const sslConfig = getSSLConfig()
     
+    // Parse numeric config with validation
+    const maxConnections = Number(process.env.POSTGRES_MAX_CONNECTIONS) || 10
+    const idleTimeout = Number(process.env.POSTGRES_IDLE_TIMEOUT) || 30
+    
     sqlInstance = postgres(connectionString, {
       ssl: sslConfig,
-      max: parseInt(process.env.POSTGRES_MAX_CONNECTIONS || '10'),
-      idle_timeout: parseInt(process.env.POSTGRES_IDLE_TIMEOUT || '30'),
+      max: maxConnections,
+      idle_timeout: idleTimeout,
     })
   }
   
@@ -42,4 +46,10 @@ export function getDatabase() {
 }
 
 // Export the sql instance for convenience
-export const sql = getDatabase()
+// This will be lazily initialized on first access
+export const sql = new Proxy({} as ReturnType<typeof postgres>, {
+  get(target, prop) {
+    const db = getDatabase()
+    return (db as any)[prop]
+  },
+})
