@@ -20,11 +20,29 @@ Look at the [Nuxt 3 documentation](https://nuxt.com/docs/getting-started/introdu
 
 ## Setup
 
+### 1. Install Dependencies
+
 Make sure to install the dependencies:
 
 ```bash
 pnpm install
 ```
+
+### 2. Environment Variables
+
+Create a `.env` file in the root directory based on the `.env.example` template:
+
+```bash
+cp .env.example .env
+```
+
+Then update the `.env` file with your actual credentials:
+- `POSTGRES_URL`: Your PostgreSQL database connection string
+- `AI_GATEWAY_API_KEY`: Your AI Gateway API key (keep this secure and never commit it)
+
+**Important**: Never commit your `.env` file to version control. It contains sensitive credentials.
+
+**Important**: Never commit your `.env` file to version control. It contains sensitive credentials.
 
 ## Development Server
 
