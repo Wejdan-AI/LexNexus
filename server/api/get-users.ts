@@ -1,6 +1,4 @@
-import postgres from 'postgres'
-
-const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' })
+import { sql } from '../utils/db'
 
 async function seed() {
   const createTable = await sql`
