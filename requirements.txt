@@ -1,1 +1,16 @@
+# HTTP Client
 requests
+httpx
+
+# FastAPI and ASGI server
+fastapi
+uvicorn[standard]
+pydantic
+
+# AI Provider SDKs
+anthropic
+openai
+google-generativeai
+
+# Additional dependencies
+python-dotenv
