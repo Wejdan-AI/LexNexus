@@ -50,7 +50,7 @@ jobs:
     - name: Install dependencies and build
       run: |
         pnpm install
-        pnpm run build
+        pnpm run build --if-present
 
     - name: Upload artifact for deployment job
       uses: actions/upload-artifact@v4
