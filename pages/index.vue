@@ -36,8 +36,8 @@
           src="/vercel.svg"
           alt="Vercel Logo"
           class="my-2 text-white dark:text-white"
-          width="{100}"
-          height="{24}"
+          width="100"
+          height="24"
         />
       </a>
       <a
