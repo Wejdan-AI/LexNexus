@@ -39,10 +39,15 @@ async function seed() {
     users,
   }
 }
+async function fetchUsers() {
+  const users = await sql`SELECT * FROM profiles`
+  return users
+}
+
 export default defineEventHandler(async () => {
   const startTime = Date.now()
   try {
-    const users = await sql`SELECT * FROM profiles`
+    const users = await fetchUsers()
     const duration = Date.now() - startTime
     return {
       users,
@@ -58,7 +63,7 @@ export default defineEventHandler(async () => {
       )
       // Table is not created yet
       await seed()
-      const users = await sql`SELECT * FROM profiles`
+      const users = await fetchUsers()
       const duration = Date.now() - startTime
       return {
         users,
