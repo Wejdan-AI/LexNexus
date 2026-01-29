@@ -1,7 +1,35 @@
 // معمارية قاعدة البيانات - نظام البنك المصغر الذكي
 import postgres from 'postgres'
 
-const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' })
+let _sql: ReturnType<typeof postgres> | null = null
+
+function getDatabaseUrl(): string {
+  const url = process.env.LEXBANK_POSTGRES_URL ?? process.env.POSTGRES_URL
+  if (!url) {
+    throw new Error(
+      'Database connection string missing. Set LEXBANK_POSTGRES_URL (or POSTGRES_URL) in environment.'
+    )
+  }
+  return url
+}
+
+function getSql(): ReturnType<typeof postgres> {
+  if (!_sql) {
+    const connectionString = getDatabaseUrl()
+    _sql = postgres(connectionString, { ssl: 'require' })
+  }
+  return _sql
+}
+
+// Export lazy getter
+export const sql = new Proxy({} as ReturnType<typeof postgres>, {
+  get(_target, prop) {
+    return getSql()[prop as keyof ReturnType<typeof postgres>]
+  },
+  apply(_target, _thisArg, args) {
+    return getSql()(...args as any)
+  }
+})
 
 export async function initDatabase() {
   // جدول المستخدمين

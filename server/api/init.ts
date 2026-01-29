@@ -6,10 +6,74 @@ async function hashPassword(password: string): Promise<string> {
   return crypto.createHash('sha256').update(password).digest('hex')
 }
 
+async function checkMigrationApplied(name: string): Promise<boolean> {
+  try {
+    const result = await sql`
+      SELECT 1 FROM migrations_applied WHERE name = ${name} LIMIT 1
+    `
+    return result.length > 0
+  } catch (error) {
+    // Table doesn't exist yet
+    return false
+  }
+}
+
+async function markMigrationApplied(name: string): Promise<void> {
+  // Ensure migrations table exists
+  await sql`
+    CREATE TABLE IF NOT EXISTS migrations_applied (
+      id SERIAL PRIMARY KEY,
+      name VARCHAR(255) UNIQUE NOT NULL,
+      applied_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+    )
+  `
+
+  // Mark as applied
+  await sql`
+    INSERT INTO migrations_applied (name)
+    VALUES (${name})
+    ON CONFLICT (name) DO NOTHING
+  `
+}
+
 export default defineEventHandler(async () => {
   const startTime = Date.now()
 
   try {
+    const migrationName = '000_init_wejdanai'
+
+    // Check if already applied
+    const alreadyApplied = await checkMigrationApplied(migrationName)
+
+    if (alreadyApplied) {
+      // Already initialized, just return current data
+      const users = await sql`SELECT id FROM users WHERE email = 'demo@wejdanai.com' LIMIT 1`
+
+      if (users.length > 0) {
+        const userId = users[0].id
+        const accounts = await sql`SELECT * FROM accounts WHERE user_id = ${userId}`
+
+        return {
+          success: true,
+          message: '✅ البنك جاهز بالفعل',
+          alreadyInitialized: true,
+          duration: Date.now() - startTime,
+          data: {
+            user: {
+              id: userId,
+              email: 'demo@wejdanai.com',
+              password: 'demo123',
+            },
+            accounts: accounts.map((acc: any) => ({
+              accountNumber: acc.account_number,
+              type: acc.account_type,
+              balance: parseFloat(acc.balance),
+            })),
+          },
+        }
+      }
+    }
+
     // إنشاء الجداول
     await sql`
       CREATE TABLE IF NOT EXISTS users (
@@ -120,6 +184,9 @@ export default defineEventHandler(async () => {
     const accounts = await sql`
       SELECT * FROM accounts WHERE user_id = ${userId}
     `
+
+    // Mark migration as applied
+    await markMigrationApplied(migrationName)
 
     const duration = Date.now() - startTime
 

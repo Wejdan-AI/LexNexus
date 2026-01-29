@@ -39,10 +39,33 @@
             <div v-if="!initialized" class="text-center py-8">
               <button
                 @click="initializeBank"
-                class="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-semibold hover:shadow-lg transition-all"
+                :disabled="isInitializing"
+                class="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-semibold hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                بدء استخدام البنك
+                <span v-if="!isInitializing">بدء استخدام البنك</span>
+                <span v-else class="flex items-center justify-center space-x-2 rtl:space-x-reverse">
+                  <svg class="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  <span>جاري التهيئة...</span>
+                </span>
               </button>
+
+              <!-- رسائل النجاح والخطأ -->
+              <div v-if="successMessage" class="mt-4 p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-700 rounded-lg">
+                <p class="text-green-800 dark:text-green-200 text-sm">{{ successMessage }}</p>
+              </div>
+
+              <div v-if="errorMessage" class="mt-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded-lg">
+                <p class="text-red-800 dark:text-red-200 text-sm">{{ errorMessage }}</p>
+                <button
+                  @click="errorMessage = ''"
+                  class="mt-2 text-xs text-red-600 dark:text-red-400 hover:underline"
+                >
+                  إخفاء
+                </button>
+              </div>
             </div>
 
             <div v-else class="space-y-3">
@@ -168,19 +191,50 @@ const messagesContainer = ref<HTMLElement | null>(null)
 const initialized = ref(false)
 const accounts = ref<Account[]>([])
 const accountInfo = ref<any>(null)
+const errorMessage = ref('')
+const successMessage = ref('')
+const isInitializing = ref(false)
 
 const initializeBank = async () => {
+  isInitializing.value = true
+  errorMessage.value = ''
+  successMessage.value = ''
+
   try {
     const response = await $fetch('/api/init')
+
     if (response.success) {
       initialized.value = true
       accounts.value = response.data.accounts
+
       if (accounts.value.length > 0) {
         accountInfo.value = accounts.value[0]
       }
+
+      successMessage.value = response.alreadyInitialized
+        ? 'البنك جاهز ومُهيأ مسبقاً ✓'
+        : 'تم تهيئة البنك بنجاح! يمكنك الآن البدء ✓'
+
+      setTimeout(() => {
+        successMessage.value = ''
+      }, 5000)
+    } else {
+      errorMessage.value = response.error || 'حدث خطأ أثناء التهيئة'
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error('خطأ في التهيئة:', error)
+
+    if (error.data?.error) {
+      errorMessage.value = error.data.error
+    } else if (error.message?.includes('fetch')) {
+      errorMessage.value = 'تعذر الاتصال بالخادم. تحقق من اتصال الإنترنت'
+    } else if (error.message?.includes('Database')) {
+      errorMessage.value = 'خطأ في قاعدة البيانات. تحقق من إعدادات POSTGRES_URL'
+    } else {
+      errorMessage.value = 'حدث خطأ غير متوقع. حاول مرة أخرى'
+    }
+  } finally {
+    isInitializing.value = false
   }
 }
 
