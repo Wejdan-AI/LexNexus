@@ -55,10 +55,25 @@ cp .env.example .env
 POSTGRES_URL="postgres://username:password@host:port/database"
 ```
 
-**للحصول على قاعدة بيانات مجانية:**
+**خيارات قواعد البيانات المجانية:**
+
+#### أ) Supabase (مستخدم حالياً) ⭐
+1. اذهب إلى [Vercel Dashboard → Storage](https://vercel.com/dashboard/stores)
+2. اختر `wejdanai-db` (المنشأ مسبقاً)
+3. انسخ `LEXBANK_POSTGRES_URL` (احذف `LEXBANK_` من البداية)
+4. استخدمه كـ `POSTGRES_URL`
+
+📖 [دليل الربط الكامل مع Supabase](docs/SUPABASE_SETUP.md)
+
+#### ب) Vercel Postgres
 1. اذهب إلى [Vercel Postgres](https://vercel.com/storage/postgres)
 2. أنشئ قاعدة بيانات جديدة
 3. انسخ رابط الاتصال (POSTGRES_URL)
+
+#### ج) Neon
+1. اذهب إلى [Neon.tech](https://neon.tech)
+2. أنشئ مشروع جديد (مجاني)
+3. انسخ Connection String
 
 ### 4️⃣ تشغيل المشروع
 
